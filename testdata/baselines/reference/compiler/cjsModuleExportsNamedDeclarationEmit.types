@@ -1,23 +1,34 @@
 //// [tests/cases/compiler/cjsModuleExportsNamedDeclarationEmit.ts] ////
 
-=== /index.js ===
-/** @type {typeof import("./helper").InternalClass} */
-const Cls = require("./helper").InternalClass;
->Cls : typeof InternalClass
->require("./helper").InternalClass : typeof InternalClass
+=== /reexport.js ===
+const { InternalClass } = require("./helper");
+>InternalClass : typeof InternalClass
 >require("./helper") : { InternalClass: typeof InternalClass; }
 >require : any
 >"./helper" : "./helper"
->InternalClass : typeof InternalClass
 
-exports.instance = new Cls("hello");
->exports.instance = new Cls("hello") : InternalClass
->exports.instance : InternalClass
->exports : typeof import(".")
->instance : InternalClass
->new Cls("hello") : InternalClass
->Cls : typeof InternalClass
->"hello" : "hello"
+/**
+ * @param {InternalClass} cls
+ * @returns {InternalClass}
+ */
+function wrap(cls) {
+>wrap : (cls: InternalClass) => InternalClass
+>cls : InternalClass
+
+    return cls;
+>cls : InternalClass
+}
+
+exports.wrapped = wrap(new InternalClass("test"));
+>exports.wrapped = wrap(new InternalClass("test")) : InternalClass
+>exports.wrapped : InternalClass
+>exports : typeof import("./reexport")
+>wrapped : InternalClass
+>wrap(new InternalClass("test")) : InternalClass
+>wrap : (cls: InternalClass) => InternalClass
+>new InternalClass("test") : InternalClass
+>InternalClass : typeof InternalClass
+>"test" : "test"
 
 === /helper.js ===
 class InternalClass {

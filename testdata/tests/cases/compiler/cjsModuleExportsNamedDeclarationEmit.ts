@@ -5,18 +5,29 @@
 // @target: es6
 // @outDir: ./out
 
-// @filename: /index.js
+// @filename: /helper.js
 class InternalClass {
     /** @param {string} x */
     constructor(x) {
         this.x = x;
     }
-    /**
-     * @param {InternalClass} other
-     * @returns {boolean}
-     */
-    equals(other) {
-        return this.x === other.x;
-    }
 }
-exports.createInstance = function(/** @type {string} */ name) { return new InternalClass(name); };
+module.exports = { InternalClass };
+
+// @filename: /index.js
+/** @type {typeof import("./helper").InternalClass} */
+const Cls = require("./helper").InternalClass;
+exports.instance = new Cls("hello");
+
+// @filename: /reexport.js
+const { InternalClass } = require("./helper");
+
+/**
+ * @param {InternalClass} cls
+ * @returns {InternalClass}
+ */
+function wrap(cls) {
+    return cls;
+}
+
+exports.wrapped = wrap(new InternalClass("test"));

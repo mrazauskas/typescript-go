@@ -14,6 +14,19 @@ module.exports = { InternalClass };
 const Cls = require("./helper").InternalClass;
 exports.instance = new Cls("hello");
 
+//// [reexport.js]
+const { InternalClass } = require("./helper");
+
+/**
+ * @param {InternalClass} cls
+ * @returns {InternalClass}
+ */
+function wrap(cls) {
+    return cls;
+}
+
+exports.wrapped = wrap(new InternalClass("test"));
+
 
 //// [helper.js]
 "use strict";
@@ -24,11 +37,17 @@ class InternalClass {
     }
 }
 module.exports = { InternalClass };
-//// [index.js]
+//// [reexport.js]
 "use strict";
-/** @type {typeof import("./helper").InternalClass} */
-const Cls = require("./helper").InternalClass;
-exports.instance = new Cls("hello");
+const { InternalClass } = require("./helper");
+/**
+ * @param {InternalClass} cls
+ * @returns {InternalClass}
+ */
+function wrap(cls) {
+    return cls;
+}
+exports.wrapped = wrap(new InternalClass("test"));
 
 
 //// [helper.d.ts]
@@ -40,7 +59,5 @@ declare const _default: {
     InternalClass: typeof InternalClass;
 };
 export = _default;
-//// [index.d.ts]
-export declare var instance: {
-    x: string;
-};
+//// [reexport.d.ts]
+export declare var wrapped: InternalClass;
