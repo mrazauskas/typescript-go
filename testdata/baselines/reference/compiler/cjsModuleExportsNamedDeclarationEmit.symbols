@@ -1,48 +1,31 @@
 //// [tests/cases/compiler/cjsModuleExportsNamedDeclarationEmit.ts] ////
 
-=== /reexport.js ===
-const { InternalClass } = require("./helper");
->InternalClass : Symbol(InternalClass, Decl(reexport.js, 0, 7))
->require : Symbol(require)
->"./helper" : Symbol("./helper", Decl(helper.js, 0, 0))
-
-/**
- * @param {InternalClass} cls
- * @returns {InternalClass}
- */
-function wrap(cls) {
->wrap : Symbol(wrap, Decl(reexport.js, 0, 46))
->cls : Symbol(cls, Decl(reexport.js, 6, 14))
-
-    return cls;
->cls : Symbol(cls, Decl(reexport.js, 6, 14))
-}
-
-exports.wrapped = wrap(new InternalClass("test"));
->exports.wrapped : Symbol(wrapped, Decl(reexport.js, 8, 1))
->exports : Symbol(exports, Decl(reexport.js, 0, 0))
->wrapped : Symbol(wrapped, Decl(reexport.js, 8, 1))
->wrap : Symbol(wrap, Decl(reexport.js, 0, 46))
->InternalClass : Symbol(InternalClass, Decl(reexport.js, 0, 7))
-
-=== /helper.js ===
-class InternalClass {
->InternalClass : Symbol(InternalClass, Decl(helper.js, 0, 0))
+=== /index.js ===
+class Foo {
+>Foo : Symbol(Foo, Decl(index.js, 0, 0))
 
     /** @param {string} x */
     constructor(x) {
->x : Symbol(x, Decl(helper.js, 2, 16))
+>x : Symbol(x, Decl(index.js, 2, 16))
 
         this.x = x;
->this.x : Symbol(InternalClass.x, Decl(helper.js, 2, 20))
->this : Symbol(InternalClass, Decl(helper.js, 0, 0))
->x : Symbol(InternalClass.x, Decl(helper.js, 2, 20))
->x : Symbol(x, Decl(helper.js, 2, 16))
+>this.x : Symbol(Foo.x, Decl(index.js, 2, 20))
+>this : Symbol(Foo, Decl(index.js, 0, 0))
+>x : Symbol(Foo.x, Decl(index.js, 2, 20))
+>x : Symbol(x, Decl(index.js, 2, 16))
     }
 }
-module.exports = { InternalClass };
->module.exports : Symbol(exports, Decl(helper.js, 0, 0))
->module : Symbol(module, Decl(helper.js, 0, 0))
->exports : Symbol(exports, Decl(helper.js, 0, 0))
->InternalClass : Symbol(InternalClass, Decl(helper.js, 6, 18))
+
+exports.foo = new Foo("hello");
+>exports.foo : Symbol(foo, Decl(index.js, 5, 1))
+>exports : Symbol(exports, Decl(index.js, 0, 0))
+>foo : Symbol(foo, Decl(index.js, 5, 1))
+>Foo : Symbol(Foo, Decl(index.js, 0, 0))
+
+exports.bar = function(/** @type {Foo} */ f) { return f; };
+>exports.bar : Symbol(bar, Decl(index.js, 7, 31))
+>exports : Symbol(exports, Decl(index.js, 0, 0))
+>bar : Symbol(bar, Decl(index.js, 7, 31))
+>f : Symbol(f, Decl(index.js, 8, 23))
+>f : Symbol(f, Decl(index.js, 8, 23))
 

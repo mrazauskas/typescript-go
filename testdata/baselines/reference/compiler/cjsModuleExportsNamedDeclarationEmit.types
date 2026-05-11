@@ -1,38 +1,8 @@
 //// [tests/cases/compiler/cjsModuleExportsNamedDeclarationEmit.ts] ////
 
-=== /reexport.js ===
-const { InternalClass } = require("./helper");
->InternalClass : typeof InternalClass
->require("./helper") : { InternalClass: typeof InternalClass; }
->require : any
->"./helper" : "./helper"
-
-/**
- * @param {InternalClass} cls
- * @returns {InternalClass}
- */
-function wrap(cls) {
->wrap : (cls: InternalClass) => InternalClass
->cls : InternalClass
-
-    return cls;
->cls : InternalClass
-}
-
-exports.wrapped = wrap(new InternalClass("test"));
->exports.wrapped = wrap(new InternalClass("test")) : InternalClass
->exports.wrapped : InternalClass
->exports : typeof import("./reexport")
->wrapped : InternalClass
->wrap(new InternalClass("test")) : InternalClass
->wrap : (cls: InternalClass) => InternalClass
->new InternalClass("test") : InternalClass
->InternalClass : typeof InternalClass
->"test" : "test"
-
-=== /helper.js ===
-class InternalClass {
->InternalClass : InternalClass
+=== /index.js ===
+class Foo {
+>Foo : Foo
 
     /** @param {string} x */
     constructor(x) {
@@ -46,11 +16,22 @@ class InternalClass {
 >x : string
     }
 }
-module.exports = { InternalClass };
->module.exports = { InternalClass } : { InternalClass: typeof InternalClass; }
->module.exports : { InternalClass: typeof InternalClass; }
->module : { exports: { InternalClass: typeof InternalClass; }; }
->exports : { InternalClass: typeof InternalClass; }
->{ InternalClass } : { InternalClass: typeof InternalClass; }
->InternalClass : typeof InternalClass
+
+exports.foo = new Foo("hello");
+>exports.foo = new Foo("hello") : Foo
+>exports.foo : Foo
+>exports : typeof import(".")
+>foo : Foo
+>new Foo("hello") : Foo
+>Foo : typeof Foo
+>"hello" : "hello"
+
+exports.bar = function(/** @type {Foo} */ f) { return f; };
+>exports.bar = function(/** @type {Foo} */ f) { return f; } : (f: Foo) => Foo
+>exports.bar : (f: Foo) => Foo
+>exports : typeof import(".")
+>bar : (f: Foo) => Foo
+>function(/** @type {Foo} */ f) { return f; } : (f: Foo) => Foo
+>f : Foo
+>f : Foo
 

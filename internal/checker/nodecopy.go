@@ -191,14 +191,6 @@ func (b *NodeBuilderImpl) finalizeBoundary(bound *recoveryBoundary) bool {
 		return false
 	}
 	for _, a := range bound.trackedSymbols {
-		// Pre-check accessibility: if the outer tracker would produce a diagnostic for this symbol,
-		// abandon node reuse and fall back to type-based serialization. This prevents accessibility
-		// errors from being emitted during replay when the boundary's inner checks didn't detect them
-		// (e.g., when reusing JSDoc type nodes during JS declaration emit).
-		if a.symbol.Flags&ast.SymbolFlagsTypeParameter == 0 &&
-			b.ch.IsSymbolAccessible(a.symbol, a.enclosingDeclaration, a.meaning, false).Accessibility != printer.SymbolAccessibilityAccessible {
-			return false
-		}
 		b.ctx.tracker.TrackSymbol(a.symbol, a.enclosingDeclaration, a.meaning)
 	}
 	return true

@@ -1,64 +1,34 @@
 //// [tests/cases/compiler/cjsModuleExportsNamedDeclarationEmit.ts] ////
 
-//// [helper.js]
-class InternalClass {
+//// [index.js]
+class Foo {
     /** @param {string} x */
     constructor(x) {
         this.x = x;
     }
 }
-module.exports = { InternalClass };
+
+exports.foo = new Foo("hello");
+exports.bar = function(/** @type {Foo} */ f) { return f; };
+
 
 //// [index.js]
-/** @type {typeof import("./helper").InternalClass} */
-const Cls = require("./helper").InternalClass;
-exports.instance = new Cls("hello");
-
-//// [reexport.js]
-const { InternalClass } = require("./helper");
-
-/**
- * @param {InternalClass} cls
- * @returns {InternalClass}
- */
-function wrap(cls) {
-    return cls;
-}
-
-exports.wrapped = wrap(new InternalClass("test"));
-
-
-//// [helper.js]
 "use strict";
-class InternalClass {
+class Foo {
     /** @param {string} x */
     constructor(x) {
         this.x = x;
     }
 }
-module.exports = { InternalClass };
-//// [reexport.js]
-"use strict";
-const { InternalClass } = require("./helper");
-/**
- * @param {InternalClass} cls
- * @returns {InternalClass}
- */
-function wrap(cls) {
-    return cls;
-}
-exports.wrapped = wrap(new InternalClass("test"));
+exports.foo = new Foo("hello");
+exports.bar = function (/** @type {Foo} */ f) { return f; };
 
 
-//// [helper.d.ts]
-declare class InternalClass {
+//// [index.d.ts]
+declare class Foo {
     x: string;
     /** @param {string} x */
     constructor(x: string);
 }
-declare const _default: {
-    InternalClass: typeof InternalClass;
-};
-export = _default;
-//// [reexport.d.ts]
-export declare var wrapped: InternalClass;
+export declare var foo: Foo;
+export declare var bar: (f: Foo) => Foo;
