@@ -20,7 +20,7 @@ function wrap(cls) {
 
 exports.wrapped = wrap(new InternalClass("test"));
 >exports.wrapped : Symbol(wrapped, Decl(reexport.js, 8, 1))
->exports : Symbol("./reexport", Decl(reexport.js, 0, 0))
+>exports : Symbol(exports, Decl(reexport.js, 0, 0))
 >wrapped : Symbol(wrapped, Decl(reexport.js, 8, 1))
 >wrap : Symbol(wrap, Decl(reexport.js, 0, 46))
 >InternalClass : Symbol(InternalClass, Decl(reexport.js, 0, 7))

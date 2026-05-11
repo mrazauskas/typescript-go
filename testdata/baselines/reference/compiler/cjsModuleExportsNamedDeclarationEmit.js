@@ -52,6 +52,7 @@ exports.wrapped = wrap(new InternalClass("test"));
 
 //// [helper.d.ts]
 declare class InternalClass {
+    x: string;
     /** @param {string} x */
     constructor(x: string);
 }
