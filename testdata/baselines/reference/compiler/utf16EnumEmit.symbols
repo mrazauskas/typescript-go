@@ -1,0 +1,33 @@
+//// [tests/cases/compiler/utf16EnumEmit.ts] ////
+
+=== utf16EnumEmit.ts ===
+enum E {
+>E : Symbol(E, Decl(utf16EnumEmit.ts, 0, 0))
+
+    "\uD800lone" = 1,
+>"\uD800lone" : Symbol(E["\uD800lone"], Decl(utf16EnumEmit.ts, 0, 8))
+}
+const enum S {
+>S : Symbol(S, Decl(utf16EnumEmit.ts, 2, 1))
+
+    C = "\uD800",
+>C : Symbol(S.C, Decl(utf16EnumEmit.ts, 3, 14))
+}
+const c = S.C;
+>c : Symbol(c, Decl(utf16EnumEmit.ts, 6, 5))
+>S.C : Symbol(S.C, Decl(utf16EnumEmit.ts, 3, 14))
+>S : Symbol(S, Decl(utf16EnumEmit.ts, 2, 1))
+>C : Symbol(S.C, Decl(utf16EnumEmit.ts, 3, 14))
+
+enum EscapedName {
+>EscapedName : Symbol(EscapedName, Decl(utf16EnumEmit.ts, 6, 14))
+
+    \u0041 = 1,
+>\u0041 : Symbol(EscapedName[\u0041], Decl(utf16EnumEmit.ts, 8, 18))
+}
+const a = EscapedName.A;
+>a : Symbol(a, Decl(utf16EnumEmit.ts, 11, 5))
+>EscapedName.A : Symbol(EscapedName[\u0041], Decl(utf16EnumEmit.ts, 8, 18))
+>EscapedName : Symbol(EscapedName, Decl(utf16EnumEmit.ts, 6, 14))
+>A : Symbol(EscapedName[\u0041], Decl(utf16EnumEmit.ts, 8, 18))
+

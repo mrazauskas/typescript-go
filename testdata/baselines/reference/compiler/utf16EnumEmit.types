@@ -1,0 +1,36 @@
+//// [tests/cases/compiler/utf16EnumEmit.ts] ////
+
+=== utf16EnumEmit.ts ===
+enum E {
+>E : E
+
+    "\uD800lone" = 1,
+>"\uD800lone" : (typeof E)["\uD800lone"]
+>1 : 1
+}
+const enum S {
+>S : S
+
+    C = "\uD800",
+>C : S.C
+>"\uD800" : "\uD800"
+}
+const c = S.C;
+>c : S.C
+>S.C : S
+>S : typeof S
+>C : S
+
+enum EscapedName {
+>EscapedName : EscapedName
+
+    \u0041 = 1,
+>\u0041 : EscapedName.A
+>1 : 1
+}
+const a = EscapedName.A;
+>a : EscapedName.A
+>EscapedName.A : EscapedName
+>EscapedName : typeof EscapedName
+>A : EscapedName
+
