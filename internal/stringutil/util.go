@@ -3,8 +3,10 @@ package stringutil
 
 import (
 	"regexp"
+	"slices"
 	"strings"
 	"unicode"
+	"unicode/utf16"
 	"unicode/utf8"
 )
 
@@ -312,4 +314,81 @@ func DecodeJSStringRune(s string) (rune, int) {
 		return rune(0xD000) | rune(s[1]&0x3F)<<6 | rune(s[2]&0x3F), 3
 	}
 	return utf8.DecodeRuneInString(s)
+}
+
+func JSStringCodeUnitLen(s string) int {
+	return len(JSStringCodeUnits(s))
+}
+
+func JSStringHasCodeUnitPrefix(s string, prefix string) bool {
+	units := JSStringCodeUnits(s)
+	prefixUnits := JSStringCodeUnits(prefix)
+	return len(prefixUnits) <= len(units) && slices.Equal(units[:len(prefixUnits)], prefixUnits)
+}
+
+func JSStringHasCodeUnitSuffix(s string, suffix string) bool {
+	units := JSStringCodeUnits(s)
+	suffixUnits := JSStringCodeUnits(suffix)
+	return len(suffixUnits) <= len(units) && slices.Equal(units[len(units)-len(suffixUnits):], suffixUnits)
+}
+
+func JSStringCodeUnitIndex(s string, substr string, start int) int {
+	units := JSStringCodeUnits(s)
+	substrUnits := JSStringCodeUnits(substr)
+	if start < 0 {
+		start = 0
+	}
+	if start > len(units) {
+		return -1
+	}
+	if len(substrUnits) == 0 {
+		return start
+	}
+	for i := start; i+len(substrUnits) <= len(units); i++ {
+		if slices.Equal(units[i:i+len(substrUnits)], substrUnits) {
+			return i
+		}
+	}
+	return -1
+}
+
+func JSStringCodeUnitSlice(s string, start int, end int) string {
+	units := JSStringCodeUnits(s)
+	start = min(max(start, 0), len(units))
+	end = min(max(end, start), len(units))
+	return JSStringFromCodeUnits(units[start:end])
+}
+
+func JSStringCodeUnits(s string) []uint16 {
+	var units []uint16
+	for i := 0; i < len(s); {
+		ch, size := DecodeJSStringRune(s[i:])
+		if size == 0 {
+			break
+		}
+		i += size
+		if ch > 0xFFFF {
+			units = utf16.AppendRune(units, ch)
+		} else {
+			units = append(units, uint16(ch))
+		}
+	}
+	return units
+}
+
+func JSStringFromCodeUnits(units []uint16) string {
+	var b strings.Builder
+	for i := 0; i < len(units); i++ {
+		unit := rune(units[i])
+		if IsHighSurrogate(unit) && i+1 < len(units) {
+			next := rune(units[i+1])
+			if IsLowSurrogate(next) {
+				b.WriteRune(utf16.DecodeRune(unit, next))
+				i++
+				continue
+			}
+		}
+		b.WriteString(EncodeJSStringRune(unit))
+	}
+	return b.String()
 }

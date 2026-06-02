@@ -46,7 +46,7 @@ type E = GetFirst<"éàü">;  // "é"
 
 // Emoji (4 bytes in UTF-8, 2 code units in UTF-16 as surrogate pair)
 type Emoji = GetFirst<"😀abc">;
->Emoji : "😀"
+>Emoji : "\uD83D"
 
 // Verification
 type Expect<T, Expected> = T extends Expected ? true : false;

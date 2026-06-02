@@ -4,7 +4,6 @@ import (
 	"slices"
 	"strconv"
 	"strings"
-	"unicode/utf8"
 
 	"github.com/microsoft/typescript-go/internal/ast"
 	"github.com/microsoft/typescript-go/internal/binder"
@@ -12,6 +11,7 @@ import (
 	"github.com/microsoft/typescript-go/internal/core"
 	"github.com/microsoft/typescript-go/internal/diagnostics"
 	"github.com/microsoft/typescript-go/internal/jsnum"
+	"github.com/microsoft/typescript-go/internal/stringutil"
 	"github.com/microsoft/typescript-go/internal/tracing"
 )
 
@@ -2387,12 +2387,12 @@ func (c *Checker) inferFromLiteralPartsToTemplateLiteral(sourceTexts []string, s
 	lastTargetIndex := len(targetTexts) - 1
 	targetStartText := targetTexts[0]
 	targetEndText := targetTexts[lastTargetIndex]
-	if lastSourceIndex == 0 && len(sourceStartText) < len(targetStartText)+len(targetEndText) || !strings.HasPrefix(sourceStartText, targetStartText) || !strings.HasSuffix(sourceEndText, targetEndText) {
+	if lastSourceIndex == 0 && stringutil.JSStringCodeUnitLen(sourceStartText) < stringutil.JSStringCodeUnitLen(targetStartText)+stringutil.JSStringCodeUnitLen(targetEndText) || !stringutil.JSStringHasCodeUnitPrefix(sourceStartText, targetStartText) || !stringutil.JSStringHasCodeUnitSuffix(sourceEndText, targetEndText) {
 		return nil
 	}
-	remainingEndText := sourceEndText[:len(sourceEndText)-len(targetEndText)]
+	remainingEndText := stringutil.JSStringCodeUnitSlice(sourceEndText, 0, stringutil.JSStringCodeUnitLen(sourceEndText)-stringutil.JSStringCodeUnitLen(targetEndText))
 	seg := 0
-	pos := len(targetStartText)
+	pos := stringutil.JSStringCodeUnitLen(targetStartText)
 	var matches []*Type
 	getSourceText := func(index int) string {
 		if index < lastSourceIndex {
@@ -2403,12 +2403,12 @@ func (c *Checker) inferFromLiteralPartsToTemplateLiteral(sourceTexts []string, s
 	addMatch := func(s int, p int) {
 		var matchType *Type
 		if s == seg {
-			matchType = c.getStringLiteralType(getSourceText(s)[pos:p])
+			matchType = c.getStringLiteralType(stringutil.JSStringCodeUnitSlice(getSourceText(s), pos, p))
 		} else {
 			matchTexts := make([]string, s-seg+1)
-			matchTexts[0] = sourceTexts[seg][pos:]
+			matchTexts[0] = stringutil.JSStringCodeUnitSlice(sourceTexts[seg], pos, stringutil.JSStringCodeUnitLen(sourceTexts[seg]))
 			copy(matchTexts[1:], sourceTexts[seg+1:s])
-			matchTexts[s-seg] = getSourceText(s)[:p]
+			matchTexts[s-seg] = stringutil.JSStringCodeUnitSlice(getSourceText(s), 0, p)
 			matchType = c.getTemplateLiteralType(matchTexts, sourceTypes[seg:s])
 		}
 		matches = append(matches, matchType)
@@ -2421,9 +2421,9 @@ func (c *Checker) inferFromLiteralPartsToTemplateLiteral(sourceTexts []string, s
 			s := seg
 			p := pos
 			for {
-				d := strings.Index(getSourceText(s)[p:], delim)
+				d := stringutil.JSStringCodeUnitIndex(getSourceText(s), delim, p)
 				if d >= 0 {
-					p += d
+					p = d
 					break
 				}
 				s++
@@ -2433,17 +2433,16 @@ func (c *Checker) inferFromLiteralPartsToTemplateLiteral(sourceTexts []string, s
 				p = 0
 			}
 			addMatch(s, p)
-			pos += len(delim)
-		} else if sourceText := getSourceText(seg); pos < len(sourceText) {
-			_, size := utf8.DecodeRuneInString(sourceText[pos:])
-			addMatch(seg, pos+size)
+			pos += stringutil.JSStringCodeUnitLen(delim)
+		} else if sourceText := getSourceText(seg); pos < stringutil.JSStringCodeUnitLen(sourceText) {
+			addMatch(seg, pos+1)
 		} else if seg < lastSourceIndex {
 			addMatch(seg+1, 0)
 		} else {
 			return nil
 		}
 	}
-	addMatch(lastSourceIndex, len(getSourceText(lastSourceIndex)))
+	addMatch(lastSourceIndex, stringutil.JSStringCodeUnitLen(getSourceText(lastSourceIndex)))
 	return matches
 }
 
