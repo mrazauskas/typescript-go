@@ -7,12 +7,12 @@ export const u2019 = "I can’t do this 😂 " as const;
 >"I can’t do this 😂 " : "I can’t do this 😂 "
 
 export const speaker = (msg: string) => [`🔈`, `🔈 ${msg}`] as const;
->speaker : (msg: string) => readonly [`🔈`, `\uD83D\uDD08 ${string}`]
->(msg: string) => [`🔈`, `🔈 ${msg}`] as const : (msg: string) => readonly [`🔈`, `\uD83D\uDD08 ${string}`]
+>speaker : (msg: string) => readonly [`🔈`, `🔈 ${string}`]
+>(msg: string) => [`🔈`, `🔈 ${msg}`] as const : (msg: string) => readonly [`🔈`, `🔈 ${string}`]
 >msg : string
->[`🔈`, `🔈 ${msg}`] as const : readonly ["🔈", `\uD83D\uDD08 ${string}`]
->[`🔈`, `🔈 ${msg}`] : readonly ["🔈", `\uD83D\uDD08 ${string}`]
+>[`🔈`, `🔈 ${msg}`] as const : readonly ["🔈", `🔈 ${string}`]
+>[`🔈`, `🔈 ${msg}`] : readonly ["🔈", `🔈 ${string}`]
 >`🔈` : "🔈"
->`🔈 ${msg}` : `\uD83D\uDD08 ${string}`
+>`🔈 ${msg}` : `🔈 ${string}`
 >msg : string
 
