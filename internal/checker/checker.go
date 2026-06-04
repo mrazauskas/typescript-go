@@ -25161,6 +25161,7 @@ func isFreshLiteralType(t *Type) bool {
 }
 
 func (c *Checker) getStringLiteralType(value string) *Type {
+	value = stringutil.NormalizeJSString(value)
 	t := c.stringLiteralTypes[value]
 	if t == nil {
 		t = c.newLiteralType(TypeFlagsStringLiteral, value, nil)

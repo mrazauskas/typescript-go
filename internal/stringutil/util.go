@@ -276,6 +276,14 @@ const (
 	SurrogateLowStart  = 0xDC00
 	SurrogateEnd       = 0xE000
 	SupplementaryStart = 0x10000
+
+	encodedSurrogateFirstByte        = 0xED
+	encodedSurrogateSecondByteMin    = 0xA0
+	encodedSurrogateSecondByteMax    = 0xBF
+	encodedSurrogateCodePointBase    = 0xD000
+	encodedSurrogateContinuationMin  = 0x80
+	encodedSurrogateContinuationMax  = 0xBF
+	encodedSurrogateContinuationMask = 0x3F
 )
 
 func IsHighSurrogate(ch rune) bool {
@@ -301,19 +309,31 @@ func CodePointToSurrogatePair(ch rune) (high rune, low rune) {
 func EncodeJSStringRune(ch rune) string {
 	if IsSurrogate(ch) {
 		return string([]byte{
-			0xED,
-			byte(0x80 | ((ch >> 6) & 0x3F)),
-			byte(0x80 | (ch & 0x3F)),
+			encodedSurrogateFirstByte,
+			byte(encodedSurrogateContinuationMin | ((ch >> 6) & encodedSurrogateContinuationMask)),
+			byte(encodedSurrogateContinuationMin | (ch & encodedSurrogateContinuationMask)),
 		})
 	}
 	return string(ch)
 }
 
 func DecodeJSStringRune(s string) (rune, int) {
-	if len(s) >= 3 && s[0] == 0xED && s[1] >= 0xA0 && s[1] <= 0xBF && s[2] >= 0x80 && s[2] <= 0xBF {
-		return rune(0xD000) | rune(s[1]&0x3F)<<6 | rune(s[2]&0x3F), 3
+	if ch, ok := decodeEncodedSurrogateAt(s, 0); ok {
+		return ch, 3
 	}
 	return utf8.DecodeRuneInString(s)
+}
+
+func decodeEncodedSurrogateAt(s string, i int) (rune, bool) {
+	if i+2 >= len(s) ||
+		s[i] != encodedSurrogateFirstByte ||
+		s[i+1] < encodedSurrogateSecondByteMin || s[i+1] > encodedSurrogateSecondByteMax ||
+		s[i+2] < encodedSurrogateContinuationMin || s[i+2] > encodedSurrogateContinuationMax {
+		return 0, false
+	}
+	return rune(encodedSurrogateCodePointBase) |
+		rune(s[i+1]&encodedSurrogateContinuationMask)<<6 |
+		rune(s[i+2]&encodedSurrogateContinuationMask), true
 }
 
 func JSStringCodeUnitLen(s string) int {
@@ -374,6 +394,25 @@ func JSStringCodeUnits(s string) []uint16 {
 		}
 	}
 	return units
+}
+
+func NormalizeJSString(s string) string {
+	for i := 0; i+5 < len(s); {
+		j := strings.IndexByte(s[i:], encodedSurrogateFirstByte)
+		if j < 0 {
+			return s
+		}
+		i += j
+		ch, ok := decodeEncodedSurrogateAt(s, i)
+		if ok && IsHighSurrogate(ch) {
+			next, nextOk := decodeEncodedSurrogateAt(s, i+3)
+			if nextOk && IsLowSurrogate(next) {
+				return JSStringFromCodeUnits(JSStringCodeUnits(s))
+			}
+		}
+		i++
+	}
+	return s
 }
 
 func JSStringFromCodeUnits(units []uint16) string {

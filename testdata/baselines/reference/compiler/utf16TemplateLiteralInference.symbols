@@ -1,30 +1,24 @@
 //// [tests/cases/compiler/utf16TemplateLiteralInference.ts] ////
 
 === utf16TemplateLiteralInference.ts ===
-type Head<S> = S extends `${infer C}${string}` ? C : never;
->Head : Symbol(Head, Decl(utf16TemplateLiteralInference.ts, 0, 0))
->S : Symbol(S, Decl(utf16TemplateLiteralInference.ts, 0, 10))
->S : Symbol(S, Decl(utf16TemplateLiteralInference.ts, 0, 10))
->C : Symbol(C, Decl(utf16TemplateLiteralInference.ts, 0, 33))
->C : Symbol(C, Decl(utf16TemplateLiteralInference.ts, 0, 33))
+type Heads<S> = S extends `${infer C}${infer R}` ? [C, R] : never;
+>Heads : Symbol(Heads, Decl(utf16TemplateLiteralInference.ts, 0, 0))
+>S : Symbol(S, Decl(utf16TemplateLiteralInference.ts, 0, 11))
+>S : Symbol(S, Decl(utf16TemplateLiteralInference.ts, 0, 11))
+>C : Symbol(C, Decl(utf16TemplateLiteralInference.ts, 0, 34))
+>R : Symbol(R, Decl(utf16TemplateLiteralInference.ts, 0, 44))
+>C : Symbol(C, Decl(utf16TemplateLiteralInference.ts, 0, 34))
+>R : Symbol(R, Decl(utf16TemplateLiteralInference.ts, 0, 44))
 
-type Rest<S> = S extends `${string}${infer R}` ? R : never;
->Rest : Symbol(Rest, Decl(utf16TemplateLiteralInference.ts, 0, 59))
->S : Symbol(S, Decl(utf16TemplateLiteralInference.ts, 1, 10))
->S : Symbol(S, Decl(utf16TemplateLiteralInference.ts, 1, 10))
->R : Symbol(R, Decl(utf16TemplateLiteralInference.ts, 1, 42))
->R : Symbol(R, Decl(utf16TemplateLiteralInference.ts, 1, 42))
-
-type A = [Head<"😀abc">, Rest<"😀abc">];
->A : Symbol(A, Decl(utf16TemplateLiteralInference.ts, 1, 59))
->Head : Symbol(Head, Decl(utf16TemplateLiteralInference.ts, 0, 0))
->Rest : Symbol(Rest, Decl(utf16TemplateLiteralInference.ts, 0, 59))
+type A = Heads<"😀abc">;
+>A : Symbol(A, Decl(utf16TemplateLiteralInference.ts, 0, 66))
+>Heads : Symbol(Heads, Decl(utf16TemplateLiteralInference.ts, 0, 0))
 
 declare let a: A;
->a : Symbol(a, Decl(utf16TemplateLiteralInference.ts, 3, 11))
->A : Symbol(A, Decl(utf16TemplateLiteralInference.ts, 1, 59))
+>a : Symbol(a, Decl(utf16TemplateLiteralInference.ts, 2, 11))
+>A : Symbol(A, Decl(utf16TemplateLiteralInference.ts, 0, 66))
 
 const chk: ["😀", "abc"] = a;
->chk : Symbol(chk, Decl(utf16TemplateLiteralInference.ts, 4, 5))
->a : Symbol(a, Decl(utf16TemplateLiteralInference.ts, 3, 11))
+>chk : Symbol(chk, Decl(utf16TemplateLiteralInference.ts, 3, 5))
+>a : Symbol(a, Decl(utf16TemplateLiteralInference.ts, 2, 11))
 

@@ -1,16 +1,15 @@
-utf16TemplateLiteralInference.ts(5,7): error TS2322: Type 'A' is not assignable to type '["😀", "abc"]'.
+utf16TemplateLiteralInference.ts(4,7): error TS2322: Type '["\uD83D", "\uDE00abc"]' is not assignable to type '["😀", "abc"]'.
   Type at position 0 in source is not compatible with type at position 0 in target.
     Type '"\uD83D"' is not assignable to type '"😀"'.
 
 
 ==== utf16TemplateLiteralInference.ts (1 errors) ====
-    type Head<S> = S extends `${infer C}${string}` ? C : never;
-    type Rest<S> = S extends `${string}${infer R}` ? R : never;
-    type A = [Head<"😀abc">, Rest<"😀abc">];
+    type Heads<S> = S extends `${infer C}${infer R}` ? [C, R] : never;
+    type A = Heads<"😀abc">;
     declare let a: A;
     const chk: ["😀", "abc"] = a;
           ~~~
-!!! error TS2322: Type 'A' is not assignable to type '["😀", "abc"]'.
+!!! error TS2322: Type '["\uD83D", "\uDE00abc"]' is not assignable to type '["😀", "abc"]'.
 !!! error TS2322:   Type at position 0 in source is not compatible with type at position 0 in target.
 !!! error TS2322:     Type '"\uD83D"' is not assignable to type '"😀"'.
     

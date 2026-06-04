@@ -1,19 +1,16 @@
 //// [tests/cases/compiler/utf16TemplateLiteralInference.ts] ////
 
 === utf16TemplateLiteralInference.ts ===
-type Head<S> = S extends `${infer C}${string}` ? C : never;
->Head : Head<S>
+type Heads<S> = S extends `${infer C}${infer R}` ? [C, R] : never;
+>Heads : Heads<S>
 
-type Rest<S> = S extends `${string}${infer R}` ? R : never;
->Rest : Rest<S>
-
-type A = [Head<"😀abc">, Rest<"😀abc">];
->A : A
+type A = Heads<"😀abc">;
+>A : ["\uD83D", "\uDE00abc"]
 
 declare let a: A;
->a : A
+>a : ["\uD83D", "\uDE00abc"]
 
 const chk: ["😀", "abc"] = a;
 >chk : ["😀", "abc"]
->a : A
+>a : ["\uD83D", "\uDE00abc"]
 
